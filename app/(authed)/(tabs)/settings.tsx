@@ -55,8 +55,11 @@ export default function SettingsScreen() {
 
                         <Button variant="outlined" mt={20}  onPress={async () => {
                             try {
+                                console.log('Logout start');
+                                
                                 let a = await Api.post('/user/logout')
                                 console.log(a);
+                                console.log('Logout stop');
                             } finally {
                                 await AsyncStorage.clear()
                                 router.replace('/login')
