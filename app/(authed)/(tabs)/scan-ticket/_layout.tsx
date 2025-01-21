@@ -1,10 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {ActivityIndicator, Alert, Text, Vibration, View, StyleSheet, TouchableOpacity} from 'react-native';
-import { BarcodeScanningResult, Camera, CameraType, CameraView, useCameraPermissions, FlashMode } from 'expo-camera';
+import { BarcodeScanningResult, Camera, CameraType, CameraView, useCameraPermissions, FlashMode, CameraPictureOptions, CameraCapturedPicture } from 'expo-camera';
 import { VStack } from "@/components/VStack";
 import { Button } from "@/components/Button";
 import { Entypo } from "@expo/vector-icons"
-import FontAwesome6 from '@expo/vector-icons/FontAwesome6';
+import * as MediaLibrary from "expo-media-library";
+import { Api } from "@/services/api";
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 
 
 export default function ScanTicketScreen() {
@@ -13,7 +16,11 @@ export default function ScanTicketScreen() {
     const [facing, setFacing] = useState<CameraType>('back');
     const [flash, setFlash] = useState<FlashMode>('off');
     const [torch, setTorch] = useState<boolean>(false);
+    const cameraRef = useRef<CameraView>(null);
+    const [image, setImage] = useState<string | undefined>();
 
+    const [uploading, setUploading] = useState(false);
+	  const [images, setImages] = useState<any[]>([]);
     
     if (!permission) {
         return <VStack flex={1} justifyContent='center' alignItems='center'>
@@ -53,6 +60,136 @@ export default function ScanTicketScreen() {
     async function toogleTorch() {
       setTorch(torch ? false : true);
     }
+ 
+    const uploadImage1 = async (filename: string | Blob, img: string | Blob) => {
+      let formData = new FormData();
+      formData.append("file", img);
+      formData.append("bucket", 'images')
+      formData.append("filename", filename)
+
+      console.log("**************");
+      
+
+      let res = await fetch(`http://192.168.1.104:8001/api/v1/minio/file?backet=images`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        body: formData,
+      })
+
+      let a = await res.json()
+      console.log(a);
+
+      // let res = await fetch(`http://192.168.1.104:8001/api/v1/minio/file?file=15ddf394-696f-483b-975c-642adf731da1.jpg&bucket=images`)
+      // console.log(await res);
+      
+    };
+
+    const takePicture = async () => {
+      if (cameraRef) {
+        try {
+          const data = await cameraRef.current?.takePictureAsync()
+          console.log(data)
+          if (data) {
+            setImage(data.uri)
+            saveImage()
+          }        
+        } catch (err) {
+          //
+        }
+      }
+    }
+
+    const saveImage = async () => {
+      if (image) {
+        try {
+          await MediaLibrary.createAssetAsync(image)
+          alert('Picture save!')
+        } catch (err) {
+          console.error('Error creating asset', err);
+        }
+        return;
+      }
+    }
+
+    async function takeAndUploadPhotoAsync() {
+      console.log(123);
+    }
+
+    /////////////////////////////////////
+
+    // Upload image to server
+    const uploadImage = async (uri: string) => {
+      setUploading(true);
+
+      console.log('upload');
+      console.log(uri);
+
+      const formData = new FormData();
+      formData.append("file", {
+        uri,
+        name: `image.jpg`,
+        type: 'image/jpeg',
+      } as any);
+
+      try {
+        const { data } = await Api.post('http://192.168.1.104:8001/api/v1/minio/file?bucket=images', formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+  
+        Alert.alert("Картинка загруженаа на сервер")
+      } catch (err) {
+        Alert.alert("Ошибка загрузки картинки на сервер");
+        console.error(err);
+      }
+      // console.log(data);
+
+      return
+      
+      
+      await FileSystem.uploadAsync('http://192.168.1.104:8001/api/v1/minio/file?backet=images', uri, {
+        httpMethod: 'POST',
+        uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        fieldName: 'file'
+      });
+
+      setUploading(false);
+    };
+
+    // Delete image from file system
+    const deleteImage = async (uri: string) => {
+      await FileSystem.deleteAsync(uri);
+      setImages(images.filter((i) => i !== uri));
+    };
+
+    // Select image from library or camera
+	  const selectImage = async () => {
+      let useLibrary = true
+      let result;
+      const options: ImagePicker.ImagePickerOptions = {
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: false,
+        aspect: [4, 3],
+        quality: 0.75
+      };
+
+      if (useLibrary) {
+        console.log(1);
+        result = await ImagePicker.launchImageLibraryAsync(options);
+      } else {
+        console.log(2);
+        await ImagePicker.requestCameraPermissionsAsync();
+        result = await ImagePicker.launchCameraAsync(options);
+      }
+        console.log(3);
+      // Save image if not cancelled
+      if (!result.canceled) {
+        console.log(4);
+        uploadImage(result.assets[0].uri);
+      }
+	  };
+    /////////////////////////////////////
 
     return (
         <CameraView
@@ -64,6 +201,7 @@ export default function ScanTicketScreen() {
             barcodeTypes: ["qr"],
           }}
           enableTorch={torch}
+          ref={cameraRef}
         >
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={toggleCameraFacing}>
@@ -80,6 +218,14 @@ export default function ScanTicketScreen() {
                 <TouchableOpacity style={styles.button} onPress={toogleTorch}>
                     {/* <Text style={styles.text}>Flash</Text> */}
                     <Entypo name={'flashlight'} size={28} color={'red'}/>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={takePicture}>
+                    <Entypo name={'camera'} size={28} color={'pink'}/>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.button} onPress={selectImage}>
+                    <Entypo name={'upload'} size={28} color={'white'}/>
                 </TouchableOpacity>
             </View>
         </CameraView>
