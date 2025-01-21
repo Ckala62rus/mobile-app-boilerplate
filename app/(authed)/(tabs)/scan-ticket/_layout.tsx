@@ -18,9 +18,15 @@ export default function ScanTicketScreen() {
     const [torch, setTorch] = useState<boolean>(false);
     const cameraRef = useRef<CameraView>(null);
     const [image, setImage] = useState<string | undefined>();
-
     const [uploading, setUploading] = useState(false);
 	  const [images, setImages] = useState<any[]>([]);
+
+    useEffect(() => {
+       const saveImageToDevise = async () => {
+        await saveImage()
+       }
+       saveImageToDevise()
+    }, [image])
     
     if (!permission) {
         return <VStack flex={1} justifyContent='center' alignItems='center'>
@@ -87,21 +93,29 @@ export default function ScanTicketScreen() {
     };
 
     const takePicture = async () => {
+      console.log('takePicture')
       if (cameraRef) {
         try {
+          console.log('takePictureAcync')
           const data = await cameraRef.current?.takePictureAsync()
           console.log(data)
           if (data) {
+            console.log('data is exist')
             setImage(data.uri)
-            saveImage()
+            console.log('save image methood')
+            // await saveImage()
+            console.log('saved image finished')
           }        
         } catch (err) {
-          //
+          console.log(err);          
         }
       }
     }
 
     const saveImage = async () => {
+      console.log('saveImage start')
+      console.log(image);
+    
       if (image) {
         try {
           await MediaLibrary.createAssetAsync(image)
@@ -134,11 +148,11 @@ export default function ScanTicketScreen() {
       } as any);
 
       try {
-        const { data } = await Api.post('http://192.168.1.104:8001/api/v1/minio/file?bucket=images', formData, {
+        const { data } = await Api.post('http://192.168.1.104:8001/api/v1/minio/file?bucket=mobile', formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
   
-        Alert.alert("Картинка загруженаа на сервер")
+        Alert.alert("Картинка загружена на сервер")
       } catch (err) {
         Alert.alert("Ошибка загрузки картинки на сервер");
         console.error(err);
@@ -212,12 +226,12 @@ export default function ScanTicketScreen() {
 
                 <TouchableOpacity style={styles.button} onPress={toogleFlash}>
                     {/* <Text style={styles.text}>Flash</Text> */}
-                    <Entypo name={'flash'} size={28} color={'red'}/>
+                    <Entypo name={'flash'} size={28} color={'green'}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.button} onPress={toogleTorch}>
                     {/* <Text style={styles.text}>Flash</Text> */}
-                    <Entypo name={'flashlight'} size={28} color={'red'}/>
+                    <Entypo name={'flashlight'} size={28} color={'yellow'}/>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={styles.button} onPress={takePicture}>
