@@ -212,7 +212,7 @@ export default function ScanTicketScreen() {
           facing={facing}
           onBarcodeScanned={onBarcodeScanned}
           barcodeScannerSettings={{
-            barcodeTypes: ["qr"],
+            barcodeTypes: ["qr", "code128"],
           }}
           enableTorch={torch}
           ref={cameraRef}
