@@ -42,7 +42,7 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "expo-linear-gradient": "~14.0.2",
-    "expo-camera": "~16.0.13",
+    "expo-camera": "~16.0.14",
     "expo-media-library": "~17.0.5",
     "expo-image-picker": "~16.0.4",
     "expo-file-system": "~18.0.7",

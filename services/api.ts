@@ -3,7 +3,8 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // golang api http://localhost:5000/api/auth/sign-in
-const url = Platform.OS === "android" ? "http://192.168.1.104:8001" : "http://192.168.1.104:8001"
+// const url = Platform.OS === "android" ? "http://192.168.1.104:8001" : "http://192.168.1.104:8001"
+const url = Platform.OS === "android" ? "https://8rsxx4-109-68-118-147.ru.tuna.am" : "http://192.168.1.104:8001"
 
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api/v1" });
 // const Api: AxiosInstance = axios.create({ baseURL: "http://localhost:5000/api" });

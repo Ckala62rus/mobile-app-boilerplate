@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { User } from '@/types/user';
+import { Alert } from 'react-native';
 
 interface AuthContextProps {
   isLoggedIn: boolean;
@@ -44,12 +45,11 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
     try {
       setIsLoadingAuth(true);
       console.log('1');
-      
+
       const response = await userService[authMode](email, password);
 
       console.log('2');
       console.log(response.data.access_token);
-      
       
       if (response) {
         await AsyncStorage.setItem('token', response.data.access_token);
@@ -59,7 +59,10 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
         router.replace('/(authed)/(tabs)/(tickets)');
         setIsLoggedIn(true);
       }
-    } catch (error) {
+    } catch (error: any) {
+      console.log(error.message);
+      
+      Alert.alert('Authentication failed', error.message);
       setIsLoggedIn(false);
     } finally {
       setIsLoadingAuth(false);
