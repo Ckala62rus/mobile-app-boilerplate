@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
-import {ScrollView, Text, FlatList } from 'react-native';
+import {ScrollView, Text, FlatList, LayoutChangeEvent } from 'react-native';
 import { router, useNavigation } from "expo-router"
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Image } from 'expo-image';
 import { Api, urlNgixMinio } from "@/services/api";
-import { globals } from "@/styles/_global";
 import { VStack } from "@/components/VStack";
 import { Divider } from "@/components/Divider";
+import ImageModal from 'react-native-image-modal'
+import {StyleSheet} from 'react-native';
 
 export default function EventScreen() {
     const navigation = useNavigation();
     const [images, setImages] = useState<string[]>([])
     const [isFetching, setIsFetching] = React.useState(false);
+    const [imageWidth, setImageWidth] = useState<number>(0);
 
     const url = "/minio/file?file=d71a7fdc-dd2f-47cd-acf1-9b90172b7fe6.jpg&bucket=images"
     const allFiles = "/minio/files?bucket=mobile"
@@ -83,17 +85,40 @@ export default function EventScreen() {
             renderItem={
                 ({ item }) => (
                     <VStack 
-                        flex={ 1 } 
-                        justifyContent='center' 
-                        alignItems='center' 
-                        p={ 40 } 
-                        gap={ 40 }
+                        style={style.contentsContainer}
+                        onLayout={(event: LayoutChangeEvent) => {
+                            setImageWidth(event.nativeEvent.layout.width);
+                        }}
+                        // flex={ 1 } 
+                        // justifyContent='center' 
+                        // alignItems='center' 
+                        // p={ 40 } 
+                        // gap={ 40 }
                     >
-                    <Image
+                    {/* <Image
                         key={item}
                         source={{ uri: `${urlNgixMinio}/${item}` }}
                         style={{ width: 200, height: 200, marginBottom: 10 }}
+                    /> */}
+                    <ImageModal
+                        key={item}
+                        resizeMode='contain'
+                        imageBackgroundColor='#ffffff'
+                        // style={{
+                        //     width: 250,
+                        //     height: 250,
+                        //     margin: 40,
+                        //     gap: 40
+                        // }}
+                        style={{
+                            width: imageWidth,
+                            height: 250,
+                        }}
+                        source={{
+                            uri: `${urlNgixMinio}/${item}`,
+                        }}
                     />
+                    {/* <Divider w={ "90%" } /> */}
                     </VStack>
                 )
             }
@@ -111,3 +136,17 @@ const headerRight = () => {
         />
     );
 };
+
+const style = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#f6f8fa',
+      },
+      contentsContainer: {
+        flex: 1,
+        backgroundColor: '#ffffff',
+        margin: 16,
+        paddingTop: 8,
+        paddingBottom: 8,
+      },
+})
