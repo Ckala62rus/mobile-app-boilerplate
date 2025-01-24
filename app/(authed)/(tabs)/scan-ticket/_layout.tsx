@@ -148,7 +148,7 @@ export default function ScanTicketScreen() {
       } as any);
 
       try {
-        const { data } = await Api.post('http://192.168.1.104:8001/api/v1/minio/file?bucket=mobile', formData, {
+        const { data } = await Api.post('/minio/file?bucket=mobile', formData, {
         // const { data } = await Api.post('https://phcfgy-109-68-118-147.ru.tuna.am//api/v1/minio/file?bucket=mobile', formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });

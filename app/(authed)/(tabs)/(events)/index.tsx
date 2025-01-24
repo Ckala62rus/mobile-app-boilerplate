@@ -3,7 +3,7 @@ import {ScrollView, Text, FlatList } from 'react-native';
 import { router, useNavigation } from "expo-router"
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Image } from 'expo-image';
-import { Api } from "@/services/api";
+import { Api, urlNgixMinio } from "@/services/api";
 import { globals } from "@/styles/_global";
 import { VStack } from "@/components/VStack";
 import { Divider } from "@/components/Divider";
@@ -13,8 +13,8 @@ export default function EventScreen() {
     const [images, setImages] = useState<string[]>([])
     const [isFetching, setIsFetching] = React.useState(false);
 
-    const url = "http://192.168.1.104:8001/api/v1/minio/file?file=d71a7fdc-dd2f-47cd-acf1-9b90172b7fe6.jpg&bucket=images"
-    const allFiles = "http://192.168.1.104:8001/api/v1/minio/files?bucket=mobile"
+    const url = "/minio/file?file=d71a7fdc-dd2f-47cd-acf1-9b90172b7fe6.jpg&bucket=images"
+    const allFiles = "/minio/files?bucket=mobile"
 
     const loadImages = async () => {
         let res = await Api.get(allFiles)
@@ -91,7 +91,7 @@ export default function EventScreen() {
                     >
                     <Image
                         key={item}
-                        source={{ uri: `http://192.168.1.104:88/${item}` }}
+                        source={{ uri: `${urlNgixMinio}/${item}` }}
                         style={{ width: 200, height: 200, marginBottom: 10 }}
                     />
                     </VStack>
