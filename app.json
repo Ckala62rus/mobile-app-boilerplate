@@ -36,8 +36,15 @@
         "expo-build-properties",
         {
           "android": {
-            "usesCleartextTraffic": true 
+            "usesCleartextTraffic": true
           }
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
         }
       ]
     ],
