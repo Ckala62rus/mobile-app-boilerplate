@@ -6,7 +6,8 @@ import { Api } from "@/services/api";
 
 
 // const videoSource = 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
-const videoSource = "/video/74cf3789-fa47-4a40-9100-a0dc04694f3b.mp4";
+// const videoSource = "/video/74cf3789-fa47-4a40-9100-a0dc04694f3b.mp4";
+const videoSource = "http://192.168.1.104:88/video/630be803-1fe1-483e-90ca-2ffad8a3cfa3.mp4";
 
 export default function TicketScreen() {
 // http://localhost:8001/api/v1/minio/file?file=15ddf394-696f-483b-975c-642adf731da1.jpg&bucket=images
